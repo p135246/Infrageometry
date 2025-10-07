@@ -16,7 +16,11 @@ Notebook[
       "GuideTitle",
       CellID -> 1486638722
      ],
-     Cell["XXXX", "GuideAbstract", CellID -> 2112251456]
+     Cell[
+      "Tools for finite simplicial complexes, clique complexes of graphs, hypergraph-induced complexes, homological invariants, curvature, and basic topological data analysis (Vietoris-Rips, Betti curves, persistence).",
+      "GuideAbstract",
+      CellID -> 2112251456
+     ]
     },
     Open
    ]
@@ -52,7 +56,22 @@ Notebook[
          TextData[
           {
            Cell[
-            BoxData["CanonicalComplex"],
+            BoxData["IndexHypergraph"],
+            "InlineGuideFunction",
+            TaggingRules -> {"PageType" -> "Function"},
+            CellTags -> "7c62c84d-2d4f-4628-8514-bd01a6abafa9"
+           ],
+           " \[LongDash] replace vertices with integers"
+          }
+         ],
+         "GuideText",
+         CellID -> 1850256376
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[
+            BoxData["IndexComplex"],
             "InlineGuideFunction",
             TaggingRules -> {"PageType" -> "Function"},
             CellTags -> "7c62c84d-2d4f-4628-8514-bd01a6abafa9"
@@ -1955,7 +1974,7 @@ Notebook[
             "InlineGuideFunction",
             TaggingRules -> {"PageType" -> "Function"}
            ],
-           " \[LongDash] triangulated M\[CapitalATilde]\[Paragraph]bius strip mesh"
+           " \[LongDash] triangulated Möbius strip mesh"
           }
          ],
          "GuideText",
@@ -2042,6 +2061,94 @@ Notebook[
          ],
          "GuideText",
          CellID -> 1403456794
+        ]
+       },
+       Open
+      ]
+     ],
+     Cell[
+      CellGroupData[
+       {
+        Cell[
+         "Topological Data Analysis",
+         "GuideFunctionsSubsection",
+         CellID -> 2100456789
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[
+            BoxData["VietorisRipsThresholdGraph"],
+            "InlineGuideFunction"
+           ],
+           " \[LongDash] threshold graph at scale r (metric configurable)."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456790
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[BoxData["VietorisRipsComplex"], "InlineGuideFunction"],
+           " \[LongDash] Vietoris-Rips complex at scale r (clique complex)."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456791
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[
+            BoxData["VietorisRipsFiltration"],
+            "InlineGuideFunction"
+           ],
+           " \[LongDash] association radius -> complex (options: MaxDimension, Sort)."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456792
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[BoxData["BettiCurves"], "InlineGuideFunction"],
+           " \[LongDash] radius -> Betti vector."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456793
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[BoxData["BettiTable"], "InlineGuideFunction"],
+           " \[LongDash] rectangular Betti matrix and dimension labels."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456794
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[BoxData["PersistentHomology"], "InlineGuideFunction"],
+           " \[LongDash] dim -> { {birth,death}, ... } intervals (Z2)."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456795
+        ],
+        Cell[
+         TextData[
+          {
+           Cell[BoxData["PersistenceDiagram"], "InlineGuideFunction"],
+           " \[LongDash]list {dim,birth,death}."
+          }
+         ],
+         "GuideText",
+         CellID -> 2100456796
         ]
        },
        Open
@@ -2230,7 +2337,11 @@ Notebook[
       CellGroupData[
        {
         Cell["Keywords", "KeywordsSection", CellID -> 1118578461],
-        Cell["XXXX", "Keywords", CellID -> 876348189]
+        Cell[
+         "simplicial complex, clique complex, Vietoris-Rips, Betti numbers, persistent homology, filtration, barcode, hypergraph, curvature, Euler characteristic",
+         "Keywords",
+         CellID -> 876348189
+        ]
        },
        Closed
       ]

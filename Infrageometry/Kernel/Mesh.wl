@@ -110,7 +110,7 @@ GraphMesh[g_ ? GraphQ] := MeshRegion[
 ]
 
 
-MeshComplex[mr_ ? RegionQ] := CanonicalComplex[Replace[Catenate[Select[MeshCells[mr], ListQ]], {Point[x_] :> {x}, _[x_] :> x}, 1]]
+MeshComplex[mr_ ? RegionQ] := IndexComplex[Replace[Catenate[Select[MeshCells[mr], ListQ]], {Point[x_] :> {x}, _[x_] :> x}, 1]]
 
 
 MeshIncidenceMatrix[mr_MeshRegion, n : _Integer ? Positive : 1] :=

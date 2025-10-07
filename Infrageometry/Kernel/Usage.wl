@@ -3,13 +3,16 @@ Package["WolframInstitute`Infrageometry`"]
 (* Usage messages for exported symbols. Experimental functions are marked (experimental). *)
 
 ComplexClosure::usage = "ComplexClosure[g] returns the simplicial closure of a list of simplices g.";
-CanonicalComplex::usage = "CanonicalComplex[g] relabels vertices of complex g to a canonical consecutive ordering.";
+IndexHypergraph::usage = "IndexHypergraph[h] relabels vertices of a hypergraph (list of hyperedges) h to consecutive integers.";
+IndexComplex::usage = "IndexComplex[g] relabels vertices of complex g to a consecutive ordering of integers.";
 
 SimplexDimension::usage = "SimplexDimension[s] gives the dimension (#vertices - 1) of simplex s.";
 ComplexDimension::usage = "ComplexDimension[g] gives the maximal simplex dimension of complex g (or -1 for empty).";
 ComplexDimensions::usage = "ComplexDimensions[g] gives inductive vertex dimensions of complex g.";
 ComplexInductiveDimension::usage = "ComplexInductiveDimension[g] gives the mean of vertex dimensions (inductive dimension).";
 SimplexList::usage = "SimplexList[g, k] lists all simplices of dimension <= k (or within a range {kmin,kmax}).";
+ComplexBones::usage = "ComplexBones[g] returns interior (d-2)-faces (\"bones\") of a pure d-dimensional complex.";
+ComplexWalls::usage = "ComplexWalls[g] returns codimension-1 faces (\"walls\") of a pure complex (potential boundary facets).";
 ComplexFacets::usage = "ComplexFacets[g] returns all maximal simplices (facets) of g.";
 ComplexVertexList::usage = "ComplexVertexList[g] returns the sorted list of vertices in g.";
 SimplexCardinality::usage = "SimplexCardinality[g, k] gives the number of k-dimensional simplices in g.";
@@ -18,10 +21,13 @@ SimplexStar::usage = "SimplexStar[g, s] gives the star: all simplices containing
 SimplexCore::usage = "SimplexCore[g, s] gives all simplices contained in s.";
 ComplexUnitSphere::usage = "ComplexUnitSphere[g, s] gives the unit sphere (link) around simplex s (its star minus interior).";
 SimplexBoundary::usage = "SimplexBoundary[s] lists codimension-1 faces of simplex s.";
+ComplexDual::usage = "ComplexDual[g] returns a dual cell structure (barycentric dual) of g.";
 SimplexIndex::usage = "SimplexIndex[s] gives signed index weight of simplex s; SimplexIndex[s,t] gives relative index if s and t coincide as sets.";
 SimplexSign::usage = "SimplexSign[s] is the permutation signature of vertex ordering of s; SimplexSign[s,t] relative signature if same underlying set.";
 SimplexWeight::usage = "SimplexWeight[s] is (-1)^(Length[s]).";
 ContractibleQ::usage = "ContractibleQ[g] attempts a recursive star decomposition test for contractibility of g.";
+ComplexSphereQ::usage = "ComplexSphereQ[g] heuristically tests if g is a combinatorial sphere (vertex links spheres + Euler).";
+ComplexManifoldQ::usage = "ComplexManifoldQ[g] tests if all vertex links are spheres or balls (pseudomanifold / manifold condition).";
 SimplicialMap::usage = "SimplicialMap[g, perm] builds a simplicial map induced by a vertex permutation.";
 
 ComplexJoin::usage = "ComplexJoin[a,b] returns the join of simplicial complexes a and b.";
@@ -44,6 +50,7 @@ FaceGraph::usage = "FaceGraph[g] returns incidence graph between simplices and s
 BarycentricRefinement::usage = "BarycentricRefinement[g] returns the barycentric subdivision (complex, graph, or iterated form).";
 
 GraphTopology::usage = "GraphTopology[g] returns star neighborhoods of each simplex of the clique complex of g.";
+AlexandrovTopology::usage = "AlexandrovTopology[g] returns the specialization/Alexandrov topology induced by the face poset of g.";
 
 IndexMatrix::usage = "IndexMatrix[g,k] returns signed incidence between (k+1)- and k-simplices; IndexMatrix[g] defaults to full complex.";
 SignMatrix::usage = "SignMatrix[g,k] returns orientation sign incidence matrix between (k+1)- and k-simplices.";
@@ -75,6 +82,8 @@ RandomGraphAutomorphism::usage = "RandomGraphAutomorphism[g, n] samples n automo
 GraphEdgeWeights::usage = "GraphEdgeWeights[g] gives edge weights (default 1) for graph g.";
 GraphVertexWeights::usage = "GraphVertexWeights[g] gives vertex weights (default 1) for graph g.";
 FormanRicciCurvature::usage = "FormanRicciCurvature[g] returns association of edges to Forman–Ricci curvature values.";
+FormanRicciCurvatures::usage = "FormanRicciCurvatures[g] returns extended Forman–Ricci curvature components per edge (if implemented).";
+SectionalCurvatures::usage = "SectionalCurvatures[g] estimates discrete sectional curvatures for edge neighborhoods (if implemented).";
 SpacetimeGraph::usage = "SpacetimeGraph[{m,n}] builds a 2D causal diamond style spacetime graph grid.";
 SpacetimeTorusGraph::usage = "SpacetimeTorusGraph[{m,n}] builds a periodic (toroidal) spacetime graph.";
 RotateEdge::usage = "RotateEdge[e,{m,n}] rotates a directed edge in toroidal coordinates.";
@@ -127,15 +136,15 @@ EulerBettiConsistencyQ::usage = "EulerBettiConsistencyQ[g] checks Euler characte
 EnumerateComplexes::usage = "EnumerateComplexes[verts,d] generates all simplicial complexes on given vertex set with maximal dimension d (default Infinity). Use option \"MaxCount\"->n to cap enumeration size.";
 DiscreteDirichletEnergy::usage = "DiscreteDirichletEnergy[g,f] gives 1/2 Sum_{(u,v)} (f[u]-f[v])^2 over edges of the 1-skeleton of complex or graph g; f may be an Association or list aligned to vertex order.";
 
-BettiTable::usage = "BettiTable[data, radii] returns an association with radii, rectangular Betti number matrix and dimensions labels derived from BettiCurves.";
-BettiCurves::usage = "BettiCurves[data, radii] returns an association radius -> Betti vector for the Vietoris–Rips filtration.";
-VietorisRipsFiltration::usage = "VietorisRipsFiltration[data, radii] builds an association radius -> Vietoris–Rips complex (up to MaxDimension).";
-VietorisRipsComplex::usage = "VietorisRipsComplex[data, r, k] returns the k-truncated VR complex at scale r.";
-VietorisRipsThresholdGraph::usage = "VietorisRipsThresholdGraph[data, r] returns the threshold graph connecting points within distance r (metric configurable).";
+BettiTable::usage = "BettiTable[data, radii, opts] returns <| 'Radii'->rlist, 'Betti'->matrix, 'Dimensions'->{d0,...} |> constructed from BettiCurves. Options: passes through MaxDimension -> k (default Automatic=all).";
+BettiCurves::usage = "BettiCurves[data, radii, opts] returns an association r -> {b0,b1,...}. Option MaxDimension->k truncates vectors (Automatic = all).";
+VietorisRipsFiltration::usage = "VietorisRipsFiltration[data, radii, opts] returns association r -> Vietoris–Rips complex at scale r. Options: 'MaxDimension'->k (default Infinity), 'Sort'->True/False to control radius sorting.";
+VietorisRipsComplex::usage = "VietorisRipsComplex[data, r, k] returns the Vietoris–Rips simplicial complex (clique complex of threshold graph) truncated to dimension k (Infinity for full).";
+VietorisRipsThresholdGraph::usage = "VietorisRipsThresholdGraph[data, r, opts] returns the threshold graph joining points with distance <= r. Options: 'Metric'->f (default EuclideanDistance), 'IncludeLoops'->False (future use), 'VertexCoordinates'->True to attach coordinates.";
 
-PersistentHomology::usage = "PersistentHomology[filtration] returns an association dim -> { {birth, death}, ... } of persistence intervals over Z2 (death=Infinity for essential).";
-PersistenceIntervals::usage = "PersistenceIntervals is an internal helper returning the same structure as PersistentHomology.";
-PersistenceDiagram::usage = "PersistenceDiagram[filtration] returns a list of {dim,birth,death} triples for intervals.";
+PersistentHomology::usage = "PersistentHomology[filtration, opts] returns association dim -> {{birth,death},...} over GF(2). PersistentHomology[data, radii] builds internal filtration first. Option MaxDimension->k (Automatic = all).";
+PersistenceIntervals::usage = "PersistenceIntervals[filtration, opts] internal helper implementing Z2 reduction; same output format as PersistentHomology.";
+PersistenceDiagram::usage = "PersistenceDiagram[filtration, opts] returns list {dim,birth,death}. Also PersistenceDiagram[data, radii] builds filtration. Option MaxDimension->k.";
 PopularNetwork::usage = "PopularNetwork[name, what] returns a requested artifact: 'Graph' (default), 'Description', 'Source', or 'All' (association with all fields).";
 PopularNetworkNames::usage = "PopularNetworkNames[] lists available names for PopularNetwork.";
 PopularHypergraph::usage = "PopularHypergraph[name, what] returns a hypergraph dataset as list-of-hyperedges ('Hypergraph', default) or derived views: 'IncidenceGraph', '2SectionGraph', 'Description', 'Source', or 'All'.";

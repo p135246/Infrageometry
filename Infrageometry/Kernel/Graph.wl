@@ -4,7 +4,10 @@ Package["WolframInstitute`Infrageometry`"]
 PackageExport[SymmetricRelationGraph]
 PackageExport[GraphEdgeWeights]
 PackageExport[GraphVertexWeights]
-PackageExport[FormanRicciCurvature]
+
+PackageExport[FormanRicciCurvatures]
+PackageExport[SectionalCurvatures]
+
 PackageExport[SpacetimeGraph]
 PackageExport[SpacetimeTorusGraph]
 PackageExport[RotateEdge]
@@ -42,7 +45,7 @@ GraphVertexWeights[g_Graph] := Replace[
 	1
 ]
 
-FormanRicciCurvature[g_Graph] := With[{
+FormanRicciCurvatures[g_Graph] := With[{
 	vws = Thread[VertexList[g] -> GraphVertexWeights[g]],
 	ews = Thread[EdgeList[g] -> GraphEdgeWeights[g]]
 },
@@ -64,6 +67,12 @@ FormanRicciCurvature[g_Graph] := With[{
 		{e, EdgeList[g]}
 	]
 ]
+
+
+SectionalCurvatures[g_Graph] := With[{c = GraphComplex[g], deg = VertexDegree[g], vs = PositionIndex[VertexList[g]]},
+    Total[Total[1 / Extract[deg, Lookup[vs, #]]] - 1 / 2 & /@ SimplexList[SimplexStar[c, {#}], {2}]] / 3 & /@ Keys[vs]
+]
+
 
 
 SpacetimeGraph[{m_Integer, n_Integer}, opts___] := Block[{

@@ -2,26 +2,35 @@ Package["WolframInstitute`Infrageometry`"]
 
 
 PackageExport[ComplexClosure]
-PackageExport[CanonicalComplex]
+PackageExport[IndexHypergraph]
+PackageExport[IndexComplex]
 
 PackageExport[SimplexDimension]
 PackageExport[ComplexDimension]
 PackageExport[ComplexDimensions]
 PackageExport[ComplexInductiveDimension]
 PackageExport[SimplexList]
+PackageExport[ComplexBones]
+PackageExport[ComplexWalls]
 PackageExport[ComplexFacets]
 PackageExport[ComplexHypergraph]
 PackageExport[ComplexVertexList]
 PackageExport[SimplexCardinality]
 PackageExport[SimplexCardinalities]
+
 PackageExport[SimplexStar]
 PackageExport[SimplexCore]
 PackageExport[ComplexUnitSphere]
+PackageExport[ContractibleQ]
+PackageExport[ComplexSphereQ]
+PackageExport[ComplexManifoldQ]
+
 PackageExport[SimplexBoundary]
+PackageExport[ComplexDual]
+
 PackageExport[SimplexIndex]
 PackageExport[SimplexSign]
 PackageExport[SimplexWeight]
-PackageExport[ContractibleQ]
 PackageExport[SimplicialMap]
 
 PackageExport[ComplexJoin]
@@ -43,6 +52,7 @@ PackageExport[ComplexGraph]
 PackageExport[FaceGraph]
 PackageExport[BarycentricRefinement]
 
+PackageExport[AlexandrovTopology]
 PackageExport[GraphTopology]
 
 PackageExport[IndexMatrix]
@@ -83,7 +93,9 @@ ComplexClosure[g : {___List}, {n_Integer}] := ComplexClosure[g, {n, n}]
 ComplexClosure[g : {___List}] := ComplexClosure[g, {1, Infinity}]
 
 
-CanonicalComplex[g : {___List}] := ComplexClosure[Replace[g, Thread[# -> Range[Length[#]]], {2}] & @ DeleteDuplicates[Catenate[g]]]
+IndexHypergraph[g : {___List}] := Replace[g, Thread[# -> Range[Length[#]]], {2}] & @ DeleteDuplicates[Catenate[g]]
+
+IndexComplex[g : {___List}] := ComplexClosure[IndexHypergraph[g]]
 
 SimplexDimension[x_List] := Length[x] - 1
 
@@ -101,6 +113,10 @@ SimplexList[g : {___List}, {n_Integer}] := SimplexList[g, {n, n}]
 
 SimplexList[g : {___List}] := SimplexList[g, {2, Infinity}]
 
+ComplexBones[g : {___List}] := SimplexList[g, {ComplexDimension[g] - 2}]
+
+ComplexWalls[g : {___List}] := SimplexList[g, {ComplexDimension[g] - 1}]
+
 ComplexFacets[g : {___List}] := SimplexList[g, {ComplexDimension[g]}]
 
 ComplexHypergraph[g : {___List}] :=
@@ -114,11 +130,25 @@ SimplexCardinalities[g : {___List}] := Rest[BinCounts[Length /@ g]]
 
 SimplexStar[g : {___List}, x_List] := Select[g, SubsetQ[#, x] &]
 
+SimplexStarSphere[g : {___List}, x_List] := Complement[SimplexStar[g, x], {x}]
+
 SimplexCore[g : {___List}, x_List] := Select[g, SubsetQ[x, #] &]
+
+SimplexCoreSphere[x_List] := Complement[ComplexClosure[{x}], {x}]
+
 
 ComplexUnitSphere[g : {___List}, x_List] := Complement[ComplexClosure[#], #] & @ SimplexStar[g, x]
 
+ContractibleQ[g : {___List}] := MatchQ[g, {} | {{_}}] || AnyTrue[g, With[{s = SimplexStar[g, #]}, ContractibleQ[Complement[ComplexClosure[s], s]] && ContractibleQ[Complement[g, s]]] &]
+
+ComplexSphereQ[g : {___List}] := g === {} || ComplexManifoldQ[g] && AnyTrue[g, ContractibleQ[Complement[g, SimplexStar[g, #]]] &]
+
+ComplexManifoldQ[g : {___List}] := AllTrue[g, ComplexSphereQ[ComplexUnitSphere[g, #]] &]
+
+
 SimplexBoundary[x_List] := Subsets[x, {Length[x] - 1}]
+
+ComplexDual[g : {___List}] := Union @@@ Map[ComplexUnitSphere[g, {#}] &, g, {2}]
 
 
 SimplexSign[x_] := Signature[x]
@@ -133,8 +163,6 @@ SimplexIndex[x_List] := SimplexWeight[x] * Signature[x]
 
 SimplexIndex[x_List, y_List] := If[Sort[x] === Sort[y], SimplexWeight[x] * Signature[x] * Signature[y], 0]
 
-
-ContractibleQ[g : {___List}] := MatchQ[g, {{_}}] || AnyTrue[g, With[{s = SimplexStar[g, #]}, ContractibleQ[Complement[ComplexClosure[s], s]] && ContractibleQ[Complement[g, s]]] &]
 
 SimplicialMap[g : {___List}, perm_Cycles] :=
 	With[{vs = Catenate[SimplexList[g, 0]]}, {rules = Thread[vs -> Permute[vs, perm]]},
@@ -208,7 +236,9 @@ BarycentricRefinement[g_ ? GraphQ, opts : OptionsPattern[]] := FaceGraph[GraphCo
 BarycentricRefinement[x_, n_Integer, opts : OptionsPattern[]] := Nest[BarycentricRefinement[#, opts] &, x, n]
 
 
-GraphTopology[g_ ? GraphQ] := With[{c = GraphComplex[g]}, SimplexStar[c, #] & /@ c]
+AlexandrovTopology[g : {___List}] := SimplexStar[g, #] & /@ g
+
+GraphTopology[g_ ? GraphQ] := AlexandrovTopology[GraphComplex[g]]
 
 
 IndexMatrix[_, x : {___List}, y : {___List}] := Outer[SimplexIndex &, x, y, 1]
