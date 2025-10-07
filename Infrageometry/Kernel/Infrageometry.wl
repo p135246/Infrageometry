@@ -10,6 +10,7 @@ PackageExport[ComplexDimensions]
 PackageExport[ComplexInductiveDimension]
 PackageExport[SimplexList]
 PackageExport[ComplexFacets]
+PackageExport[ComplexHypergraph]
 PackageExport[ComplexVertexList]
 PackageExport[SimplexCardinality]
 PackageExport[SimplexCardinalities]
@@ -101,6 +102,9 @@ SimplexList[g : {___List}, {n_Integer}] := SimplexList[g, {n, n}]
 SimplexList[g : {___List}] := SimplexList[g, {2, Infinity}]
 
 ComplexFacets[g : {___List}] := SimplexList[g, {ComplexDimension[g]}]
+
+ComplexHypergraph[g : {___List}] :=
+    Catenate @ FoldPairList[With[{facets = SimplexList[#1, {#2}]}, {facets, Complement[#1, Catenate[Subsets /@ facets]]}] &, g, Range[ComplexDimension[g], 0, -1]]
 
 ComplexVertexList[g : {___List}] := Union[Catenate[g]]
 

@@ -3,6 +3,7 @@ Package["WolframInstitute`Infrageometry`"]
 
 PackageExport[ComplexEmbedding]
 PackageExport[ComplexMesh]
+PackageExport[HighlightComplex]
 PackageExport[GraphMesh]
 PackageExport[MeshComplex]
 
@@ -76,19 +77,30 @@ ComplexMesh[g : {___List}, arg : {Repeated[_ ? NumericQ, {2, 3}] ..} | 2 | 3 : 3
             Switch[
                 Length[#],
                 1,
-                    Style[Point[#], Directive[StandardGreen, PointSize[Large]]],
+                    Style[Point[#], Directive[StandardYellow, PointSize[Large]]],
                 2,
                     Style[Line[#], Directive[StandardGray, Thick]],
                 3,
                     If[MemberQ[faces, #], Triangle[#], Style[Triangle[#], StandardBlue]],
                 4,
-                    Style[Tetrahedron[#], StandardRed]
+                    Style[Tetrahedron[#], StandardGreen]
             ] &,
             simplices
         ],
         FilterRules[{opts}, Options[MeshRegion]],
 		MeshCellLabel -> {0 -> "Index"}
 	]
+]
+
+
+SimplexCell[x_List] := If[Length[x] == 1, Point, Simplex][x]
+
+Options[HighlightComplex] = Options[HighlightMesh]
+
+HighlightComplex[g : {___List}, h : {(_List | Style[_List, ___]) ...}, opts : OptionsPattern[]] := HighlightMesh[
+    ComplexMesh[ComplexClosure[g, 4]],
+    Replace[h, {Style[x_, dir___] :> Style[SimplexCell[x], dir], x_ :> SimplexCell[x]}, 1],
+    FilterRules[{opts}, Options[ComplexMesh]]
 ]
 
 
