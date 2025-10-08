@@ -13,6 +13,7 @@ PackageExport[SimplexList]
 PackageExport[ComplexBones]
 PackageExport[ComplexWalls]
 PackageExport[ComplexFacets]
+PackageExport[ComplexFrames]
 PackageExport[ComplexHypergraph]
 PackageExport[ComplexVertexList]
 PackageExport[SimplexCardinality]
@@ -20,7 +21,11 @@ PackageExport[SimplexCardinalities]
 
 PackageExport[SimplexStar]
 PackageExport[SimplexCore]
-PackageExport[ComplexUnitSphere]
+PackageExport[SimplexStarSphere]
+PackageExport[SimplexCoreSphere]
+PackageExport[SimplexUnitSphere]
+PackageExport[SimplexMirror]
+
 PackageExport[ContractibleQ]
 PackageExport[ComplexSphereQ]
 PackageExport[ComplexManifoldQ]
@@ -77,6 +82,10 @@ PackageExport[SuperTrace]
 PackageExport[PseudoDeterminant]
 PackageExport[SuperDeterminant]
 
+PackageExport[ComplexGeodesicFlow]
+PackageExport[SimplexOrbit]
+PackageExport[ComplexGeodesics]
+
 
 
 ClearAll["WolframInstitute`Infrageometry`**`*", "WolframInstitute`Infrageometry`*"]
@@ -101,7 +110,7 @@ SimplexDimension[x_List] := Length[x] - 1
 
 ComplexDimension[g : {___List}] := Max[Map[SimplexDimension, g], -1]
 
-ComplexDimensions[g : {___List}] := 1 + ComplexInductiveDimension[ComplexUnitSphere[g, #]] & /@ SimplexList[g, 0]
+ComplexDimensions[g : {___List}] := 1 + ComplexInductiveDimension[SimplexUnitSphere[g, #]] & /@ SimplexList[g, 0]
 
 ComplexInductiveDimension[g : {___List}] := If[g === {}, -1, Mean[ComplexDimensions[g]]]
 
@@ -118,6 +127,8 @@ ComplexBones[g : {___List}] := SimplexList[g, {ComplexDimension[g] - 2}]
 ComplexWalls[g : {___List}] := SimplexList[g, {ComplexDimension[g] - 1}]
 
 ComplexFacets[g : {___List}] := SimplexList[g, {ComplexDimension[g]}]
+
+ComplexFrames[g : {___List}] := Catenate[Permutations /@ ComplexFacets[g]]
 
 ComplexHypergraph[g : {___List}] :=
     Catenate @ FoldPairList[With[{facets = SimplexList[#1, {#2}]}, {facets, Complement[#1, Catenate[Subsets /@ facets]]}] &, g, Range[ComplexDimension[g], 0, -1]]
@@ -136,19 +147,21 @@ SimplexCore[g : {___List}, x_List] := Select[g, SubsetQ[x, #] &]
 
 SimplexCoreSphere[x_List] := Complement[ComplexClosure[{x}], {x}]
 
+SimplexMirror[g : {___List}, x_List] := First[Complement[#, x]] & /@ SimplexStarSphere[g, x]
 
-ComplexUnitSphere[g : {___List}, x_List] := Complement[ComplexClosure[#], #] & @ SimplexStar[g, x]
+
+SimplexUnitSphere[g : {___List}, x_List] := Complement[ComplexClosure[#], #] & @ SimplexStar[g, x]
 
 ContractibleQ[g : {___List}] := MatchQ[g, {} | {{_}}] || AnyTrue[g, With[{s = SimplexStar[g, #]}, ContractibleQ[Complement[ComplexClosure[s], s]] && ContractibleQ[Complement[g, s]]] &]
 
 ComplexSphereQ[g : {___List}] := g === {} || ComplexManifoldQ[g] && AnyTrue[g, ContractibleQ[Complement[g, SimplexStar[g, #]]] &]
 
-ComplexManifoldQ[g : {___List}] := AllTrue[g, ComplexSphereQ[ComplexUnitSphere[g, #]] &]
+ComplexManifoldQ[g : {___List}] := AllTrue[g, ComplexSphereQ[SimplexUnitSphere[g, #]] &]
 
 
 SimplexBoundary[x_List] := Subsets[x, {Length[x] - 1}]
 
-ComplexDual[g : {___List}] := Union @@@ Map[ComplexUnitSphere[g, {#}] &, g, {2}]
+ComplexDual[g : {___List}] := Intersection @@@ Map[SimplexUnitSphere[g, {#}] &, g, {2}]
 
 
 SimplexSign[x_] := Signature[x]
@@ -202,7 +215,7 @@ PoincarePolynomial[g : {___List}, t_ : \[FormalT]] := 1 + # . t ^ Range[Length[#
 
 ComplexCurvature[g : {___List}, t_ : \[FormalT]] := Integrate[ComplexPolynomial[g], {\[FormalT], 0, t}]
 
-ComplexCurvatures[g : {___List}, t_ : \[FormalT]] := If[SimplexDimension[#] == 0, 0, ComplexCurvature[ComplexUnitSphere[g, #], t]] & /@ g
+ComplexCurvatures[g : {___List}, t_ : \[FormalT]] := If[SimplexDimension[#] == 0, 0, ComplexCurvature[SimplexUnitSphere[g, #], t]] & /@ g
 
 DehnSommervilleQ[g : {___List}] := With[{f = ComplexPolynomial[g]}, TrueQ[Expand[f == (f /. \[FormalT] -> - 1 - \[FormalT])]]]
 
@@ -325,4 +338,13 @@ SuperDeterminant[vec_ ? VectorQ] := Times @@ (vec ^ ((-1) ^ Range[Length[vec]]))
 SuperDeterminant[mat_BlockDiagonalMatrix] := SuperDeterminant[PseudoDeterminant /@ mat["Blocks"]]
 
 SuperDeterminant[mat_ ? SquareMatrixQ, blocks : {__Integer}] := SuperDeterminant[PseudoDeterminant /@ MatrixBlocks[mat, blocks]]
+
+
+(* Geodesics *)
+
+ComplexGeodesicFlow[g : {___List}, x : {x1_, xs___}] := Append[{xs}, First[Append[Complement[SimplexMirror[g, Sort[{xs}]], {x1}], x1]]]
+
+SimplexOrbit[g : {___List}, x_List, n : _Integer | Infinity : Infinity] := NestWhile[Append[#, ComplexGeodesicFlow[g, #[[-1]]]] &, {x}, ! MemberQ[Most[#], #[[-1]]] &, 1, n]
+
+ComplexGeodesics[g : {___List}] := NestWhilePairList[With[{o = SimplexOrbit[g, First[#]]}, {o, Complement[#, o]}] &, ComplexFrames[g], Length[#] > 0 &]
 
