@@ -254,7 +254,7 @@ AlexandrovTopology[g : {___List}] := SimplexStar[g, #] & /@ g
 GraphTopology[g_ ? GraphQ] := AlexandrovTopology[GraphComplex[g]]
 
 
-IndexMatrix[_, x : {___List}, y : {___List}] := Outer[SimplexIndex &, x, y, 1]
+IndexMatrix[_, x : {___List}, y : {___List}] := Outer[SimplexIndex, x, y, 1]
 
 SignMatrix[_, x : {___List}, y : {___List}] := Outer[SimplexSign, x, y, 1]
 
